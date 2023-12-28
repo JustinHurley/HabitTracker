@@ -2,6 +2,8 @@ import { IonButton } from "@ionic/react";
 import { useEffect, useState } from "react";
 import { Graphs } from "../Graphs/Graphs";
 import { styled } from "styled-components";
+import moment from "moment";
+import { dummyData, timezone } from "../../util";
 
 const Container = styled.div`
     font-family: 'Helvetica', sans-serif;
@@ -32,7 +34,8 @@ export const Dashboard = () => {
 
     const hitClick = () => {
         const now = new Date()
-        setTimestamps((prevTimestamps: any) => [...prevTimestamps, now.toISOString()]);
+        // setTimestamps((prevTimestamps: any) => [...prevTimestamps, now.toISOString()]);
+        setTimestamps(dummyData)
     }
 
     const resetClick = () => {
@@ -51,7 +54,9 @@ export const Dashboard = () => {
             <Graphs timestamps={timestamps}/>
             <Button color='warning' onClick={getLocalData}>Export Local Storage</Button>
             <Button color='danger' onClick={resetClick}>Reset Data</Button>
-            {JSON.stringify(timestamps)}
+            {timestamps.map((times: any) => (
+                <div key={times}>{times}; {moment.utc(times).tz(timezone).format()};</div>
+            ))}
         </Container>
     )
 }
