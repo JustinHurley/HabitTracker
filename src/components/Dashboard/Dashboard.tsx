@@ -1,9 +1,9 @@
-import { IonButton } from "@ionic/react";
+import { IonButton, IonTextarea } from "@ionic/react";
 import { useEffect, useState } from "react";
 import { Graphs } from "../Graphs/Graphs";
 import { styled } from "styled-components";
-import moment from "moment";
-import { dummyData, timezone } from "../../util";
+import moment from 'moment-timezone';
+import { dummyData, now, rightNow, timezone } from "../../util";
 
 const Container = styled.div`
     font-family: 'Helvetica', sans-serif;
@@ -14,11 +14,24 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     flex-direction: column;
+    padding: 50px;
 `
 
 const Button = styled(IonButton)`
-    width: 30%;
+    width: auto;
     margin: 10px;
+`
+
+const BigButton = styled(IonButton)`
+    margin: 10px;
+    padding: 20px;
+    font-weight: 900;
+`
+
+const LocalStorageContainer = styled(IonTextarea)`
+    background-color: white;
+    color: black;
+    padding-left: 10px;
 `
 
 export const Dashboard = () => {
@@ -27,13 +40,23 @@ export const Dashboard = () => {
         return savedTimestamps ? JSON.parse(savedTimestamps) : [];
     });
 
-    // Updates local storage when timestamps changes
+    const [developerMode, setDeveloperMode] = useState(() => {
+        const saved = localStorage.getItem('developerMode');
+        return saved ? saved : false;
+    });
+
+    const [exportData, setExportData] = useState(false)
+
     useEffect(() => {
         localStorage.setItem('timestamps', JSON.stringify(timestamps));
     }, [timestamps]);
 
+    useEffect(() => {
+        localStorage.setItem('developerMode', developerMode.toString());
+    }, [developerMode]);
+
     const hitClick = () => {
-        const now = new Date()
+        const now = rightNow
         // setTimestamps((prevTimestamps: any) => [...prevTimestamps, now.toISOString()]);
         setTimestamps(dummyData)
     }
@@ -46,17 +69,35 @@ export const Dashboard = () => {
     
     const getLocalData = () => {
         console.log(JSON.stringify(localStorage))
+        setExportData(!exportData);
+    }
+
+    const toggleDeveloperMode = () => {
+        setDeveloperMode(!developerMode);
     }
 
     return(
         <Container>
-            <Button color='primary' onClick={hitClick}>Press Here</Button>
+            <BigButton color='primary' onClick={hitClick}>🍃 Toke Counter 🍃</BigButton>
             <Graphs timestamps={timestamps}/>
             <Button color='warning' onClick={getLocalData}>Export Local Storage</Button>
             <Button color='danger' onClick={resetClick}>Reset Data</Button>
-            {timestamps.map((times: any) => (
-                <div key={times}>{times}; {moment.utc(times).tz(timezone).format()};</div>
-            ))}
+            <Button color='light' onClick={toggleDeveloperMode}>Developer Mode</Button>
+            {exportData &&
+                <>
+                    <LocalStorageContainer value={JSON.stringify(localStorage)}></LocalStorageContainer>
+                </>
+            }
+            {developerMode && 
+                <>
+                    {now.toISOString()}
+                    {timestamps.map((times: any) => (
+                        <div key={times}>{times}; {moment.utc(times).tz(timezone).format()};</div>
+                    ))} 
+                </>
+            }
+            
+            
         </Container>
     )
 }

@@ -1,10 +1,10 @@
-import moment from "moment";
+import moment from 'moment-timezone';
 
 export const primaryColor = '#49ba49'
 
 export const timezone = 'America/New_York';
-export const now = moment.tz(timezone).toDate()
-now.setHours(0, 0, 0, 0)
+export const now: Date = new Date(moment.tz(timezone).toDate().setHours(0, 0, 0, 0));
+export const rightNow: Date = moment.tz(timezone).toDate();
 
 export const dayOptions = [1, 7, 15, 30, 60, 90]
 

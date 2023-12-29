@@ -1,10 +1,9 @@
 import { Chart, Legend, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js/auto'
 import { Bar, Line } from 'react-chartjs-2';
-import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, getHourConfig, getPastNDayAverage, countPastNDays, nDaysBeforeToday, primaryColor, timezone } from '../../util';
+import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, getHourConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, now, getLastTime, getAmPmTime, getDifferenceInDays } from '../../util';
 import { IonLabel, IonSelect, IonSelectOption}  from '@ionic/react';
 import styled from 'styled-components';
-import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NumberBox } from '../Stats/NumberBox';
 
 Chart.register(
@@ -26,6 +25,7 @@ const StyledLine = styled(Line)`
     margin: 10px;
     background-color: white;
     border-radius: 5px;
+    margin-top: 20px;
 `
 
 const GraphsContainer = styled.div`
@@ -36,12 +36,11 @@ const GraphsContainer = styled.div`
 const GraphContainer = styled.div`
     width: 80vw;
     align-items: center;
-    gap: 10px;
     margin-bottom: 20px;
 `
 
 const Label = styled(IonLabel)`
-    margin: 10px;
+    margin: auto;
     align-items: center;
 `
 
@@ -49,7 +48,6 @@ const RangeBox = styled.div`
     display: flex;
     align-items: center;
     background-color: ${primaryColor};
-    width: 50%;
     border-radius: 5px;
     margin: 10px;
 `
@@ -60,20 +58,19 @@ const H3 = styled.h3`
 `
 const IonSelectStyled = styled(IonSelect)`
     margin: 10px;
-    width: 50%;
-    font-size: 20px;
+    width: 35%;
+    font-size: 18px;
     background-color: black;
     border-radius: 5px;
     padding: 5px;
     padding-left: 10px;
+    margin-left: auto;
 `
 
 const RowContainer = styled.div`
     align-items: center;
     display: flex;
     flex-direction: row;
-    margin-left: auto;
-    margin-right: auto;
     justify-content: space-evenly;
 `
 interface GraphsProps {
@@ -81,16 +78,41 @@ interface GraphsProps {
 }
 
 export const Graphs = ({timestamps}: GraphsProps) => {
+    const [numDays, setNumDays] = useState(() => {
+        return parseInt(localStorage.getItem('numDays') ?? '30') ;
+    })
+
+    useEffect(() => {
+        localStorage.setItem('numDays', numDays.toString())
+    }, [numDays])
+
     const times = convertDatesToTimezone(timestamps)
-    const [numDays, setNumDays] = useState(30)
-    const today = moment.tz(timezone).toISOString()
-    const lastNDaysConfig = getDayConfig(countByDateInRange(nDaysBeforeToday(numDays).toISOString(), today, times))
+    const lastNDaysConfig = getDayConfig(countByDateInRange(nDaysBeforeToday(numDays).toISOString(), now.toISOString(), times))
     const hourConfig = getHourConfig(countByHour(times))
 
     const dayTotal: any = countPastNDays(1, times)
+    const prevDayTotal: any = countPastNDays(2, times, 1)
+
     const nDayTotal: any = countPastNDays(numDays, times)
-    const nDayAverage: any = getPastNDayAverage(numDays, times).toFixed(2)
+    const nDayAverage: any = calculatePastNDayAverage(numDays, times).toFixed(2)
+
     const pastNDayTotal: any = countPastNDays(numDays*2, times, numDays)
+    const pastNDayAverage: any = calculatePastNDayAverage(numDays*2, times, numDays).toFixed(2)
+
+    const mostRecent: Date = getLastTime(times)
+    
+    
+    const mostRecentTime = getAmPmTime(mostRecent)
+    const daysToLast = () => {
+        const diff = getDifferenceInDays(mostRecent, now)
+        if (diff <= 0) {
+            return undefined;
+        } else if (diff === 1) {
+            return '(1 day ago)'
+        } else {
+            return `(${diff} days ago))`
+        }
+    } 
 
     const handleSelectedDay = (event: any) => {
         setNumDays(event.detail.value)
@@ -104,7 +126,8 @@ export const Graphs = ({timestamps}: GraphsProps) => {
                     {dayTotal > 0 ? 
                     <>
                         <RowContainer>
-                            <NumberBox text={'Total for Today'} num={dayTotal}/>
+                            <NumberBox text={'Total for Today'} val={dayTotal} other={prevDayTotal} useDifference={true}/>
+                            <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast()}/>
                         </RowContainer>
                         <StyledBar options={hourConfig.options} data={hourConfig.data} />
                     </> : <Label>None for Today 😴</Label>}
@@ -112,16 +135,16 @@ export const Graphs = ({timestamps}: GraphsProps) => {
                 <GraphContainer className='graph-container'>
                     <H3>TRENDS</H3>
                     <RowContainer>
-                        <NumberBox text={`${numDays} Day Total`} num={nDayTotal} other={pastNDayTotal}/>
-                        <NumberBox text={`${numDays} Day Average`} num={nDayAverage}/>
+                        <NumberBox text={`${numDays}-Day Total`} val={nDayTotal} other={pastNDayTotal} useDifference={true}/>
+                        <NumberBox text={`${numDays}-Day Daily Average`} val={nDayAverage} other={pastNDayAverage} usePercentage={true}/>
                     </RowContainer>
                     <StyledLine options={lastNDaysConfig.options} data={lastNDaysConfig.data} />
                     <RangeBox>
-                        <Label>Select Day Range</Label>
+                    <Label>Select Day Range</Label>
                         <IonSelectStyled value={numDays} onIonChange={handleSelectedDay}>
                             {dayOptions.map((day: number) => {
                                 return(
-                                    <IonSelectOption key={day} value={day}>{day} Days</IonSelectOption>
+                                    <IonSelectOption key={day} value={day}>{day} Day(s)</IonSelectOption>
                                 )
                             })}
                         </IonSelectStyled>
