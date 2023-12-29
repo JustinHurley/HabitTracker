@@ -57,8 +57,8 @@ export const Dashboard = () => {
 
     const hitClick = () => {
         const now = rightNow
-        // setTimestamps((prevTimestamps: any) => [...prevTimestamps, now.toISOString()]);
-        setTimestamps(dummyData)
+        setTimestamps((prevTimestamps: any) => [...prevTimestamps, now.toISOString()]);
+        // setTimestamps(dummyData)
     }
 
     const resetClick = () => {
