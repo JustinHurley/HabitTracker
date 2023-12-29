@@ -1,18 +1,20 @@
 import { IonContent, IonHeader, IonPage } from '@ionic/react';
-import './Home.css';
 import { Dashboard } from '../components';
+import { styled } from 'styled-components';
 
+const StyledIonPage = styled(IonPage)`
+  background-color: black;
+`
 const Home = () => {
   return (
-    <IonPage>
-      <IonHeader>
-      </IonHeader>
+    <StyledIonPage>
+      {/* <IonHeader></IonHeader> */}
       <IonContent fullscreen>
         <IonHeader collapse="condense">
         </IonHeader>
         <Dashboard/>
       </IonContent>
-    </IonPage>
+    </StyledIonPage>
   );
 };
 

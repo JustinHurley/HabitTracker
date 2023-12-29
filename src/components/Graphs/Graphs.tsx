@@ -1,6 +1,6 @@
 import { Chart, Legend, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js/auto'
 import { Bar, Line } from 'react-chartjs-2';
-import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, getHourConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, now, getLastTime, getAmPmTime, getDifferenceInDays } from '../../util';
+import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, now, getLastTime, getAmPmTime, getDifferenceInDays, daysToLast, getDailyBarGraphConfig } from '../../util';
 import { IonLabel, IonSelect, IonSelectOption}  from '@ionic/react';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
@@ -18,25 +18,27 @@ Chart.register(
 const StyledBar = styled(Bar)`
     margin: 10px;
     background-color: white;
-    border-radius: 3px;
+    border-radius: 5px;
 `
 
 const StyledLine = styled(Line)`
     margin: 10px;
     background-color: white;
     border-radius: 5px;
-    margin-top: 20px;
 `
 
 const GraphsContainer = styled.div`
     display: grid;
-    gap: 10px;
     align-items: center;
 `
 const GraphContainer = styled.div`
-    width: 80vw;
+    width: 80dvw;
     align-items: center;
     margin-bottom: 20px;
+`
+
+const GraphFrame = styled.div`
+    height: 30dvh;
 `
 
 const Label = styled(IonLabel)`
@@ -51,14 +53,15 @@ const RangeBox = styled.div`
     border-radius: 5px;
     margin: 10px;
 `
-const H3 = styled.h3`
+
+const SectionTitle = styled.h3`
     margin: 10px;
     font-weight: bold;
     font-size: 45px;
 `
 const IonSelectStyled = styled(IonSelect)`
     margin: 10px;
-    width: 35%;
+    width: 35dvh;
     font-size: 18px;
     background-color: black;
     border-radius: 5px;
@@ -86,9 +89,9 @@ export const Graphs = ({timestamps}: GraphsProps) => {
         localStorage.setItem('numDays', numDays.toString())
     }, [numDays])
 
-    const times = convertDatesToTimezone(timestamps)
+    const times: string[] = convertDatesToTimezone(timestamps)
     const lastNDaysConfig = getDayConfig(countByDateInRange(nDaysBeforeToday(numDays).toISOString(), now.toISOString(), times))
-    const hourConfig = getHourConfig(countByHour(times))
+    const hourConfig = getDailyBarGraphConfig(countByHour(times))
 
     const dayTotal: any = countPastNDays(1, times)
     const prevDayTotal: any = countPastNDays(2, times, 1)
@@ -99,20 +102,7 @@ export const Graphs = ({timestamps}: GraphsProps) => {
     const pastNDayTotal: any = countPastNDays(numDays*2, times, numDays)
     const pastNDayAverage: any = calculatePastNDayAverage(numDays*2, times, numDays).toFixed(2)
 
-    const mostRecent: Date = getLastTime(times)
-    
-    
-    const mostRecentTime = getAmPmTime(mostRecent)
-    const daysToLast = () => {
-        const diff = getDifferenceInDays(mostRecent, now)
-        if (diff <= 0) {
-            return undefined;
-        } else if (diff === 1) {
-            return '(1 day ago)'
-        } else {
-            return `(${diff} days ago))`
-        }
-    } 
+    const mostRecentTime = getAmPmTime(getLastTime(times))
 
     const handleSelectedDay = (event: any) => {
         setNumDays(event.detail.value)
@@ -122,23 +112,27 @@ export const Graphs = ({timestamps}: GraphsProps) => {
         <>
             <GraphsContainer className='graphs-container'>
                 <GraphContainer className='graph-container'>
-                    <H3>TODAY</H3>
+                    <SectionTitle>TODAY</SectionTitle>
                     {dayTotal > 0 ? 
                     <>
                         <RowContainer>
-                            <NumberBox text={'Total for Today'} val={dayTotal} other={prevDayTotal} useDifference={true}/>
-                            <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast()}/>
+                            <NumberBox text={'Total for Today'} val={dayTotal} other={prevDayTotal} useBoth={true}/>
+                            <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast(times)}/>
                         </RowContainer>
-                        <StyledBar options={hourConfig.options} data={hourConfig.data} />
+                        <GraphFrame>
+                            <StyledBar options={hourConfig.options} data={hourConfig.data} />
+                        </GraphFrame>
                     </> : <Label>None for Today 😴</Label>}
                 </GraphContainer>
                 <GraphContainer className='graph-container'>
-                    <H3>TRENDS</H3>
+                    <SectionTitle>TRENDS</SectionTitle>
                     <RowContainer>
-                        <NumberBox text={`${numDays}-Day Total`} val={nDayTotal} other={pastNDayTotal} useDifference={true}/>
-                        <NumberBox text={`${numDays}-Day Daily Average`} val={nDayAverage} other={pastNDayAverage} usePercentage={true}/>
+                        <NumberBox text={`${numDays}-Day Total`} val={nDayTotal} other={pastNDayTotal} useBoth={true}/>
+                        <NumberBox text={`${numDays}-Day Average`} val={nDayAverage} other={pastNDayAverage} useBoth={true}/>
                     </RowContainer>
-                    <StyledLine options={lastNDaysConfig.options} data={lastNDaysConfig.data} />
+                    <GraphFrame>
+                        <StyledLine options={lastNDaysConfig.options} data={lastNDaysConfig.data} />
+                    </GraphFrame>
                     <RangeBox>
                     <Label>Select Day Range</Label>
                         <IonSelectStyled value={numDays} onIonChange={handleSelectedDay}>

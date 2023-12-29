@@ -48,7 +48,7 @@ const makeHoursOfDayMap = (useAmPm = true) => {
     }
 }
 
-export const convertDatesToTimezone = (timestamps: string[], tz = timezone) => {
+export const convertDatesToTimezone = (timestamps: string[], tz = timezone): string[] => {
     return timestamps.reduce((acc: any, time: string) => {
         const date = new Date(time)
         acc.push(moment.utc(date).tz(tz).format())
@@ -70,7 +70,7 @@ export const createDateMap = (startDate: string, endDate: string) => {
     return dateMap;
 }
 
-export const convertToHour = (timestamp: string, useAmPm = true, keepMinutes = false) => {
+export const convertToHour = (timestamp: string, useAmPm = true): string => {
     const hour = parseInt(timestamp.split('T')[1].split(':')[0])
     if (useAmPm) {
         if (hour === 0) {
@@ -88,8 +88,12 @@ export const convertToHour = (timestamp: string, useAmPm = true, keepMinutes = f
 }
 
 export const getAmPmTime = (time: Date): string => {
-    const hours = time.getHours();
-    const minutes = time.getMinutes();
+    if (!(time instanceof Date)) {
+        console.error('Invalid Date entered in getAmPmTime')
+        return 'ERROR: Invalid time'
+    }
+    const hours = time.getHours()
+    const minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : `${time.getMinutes()}`
     let ans = ''
     if (hours === 0 || hours === 12) {
         ans = `12${minutes}`
@@ -112,7 +116,7 @@ export const nDaysBeforeToday = (n: number): Date => {
     return before
 }
 
-export const countPastNDays = (n: number, timestamps: any, until?: number) => {
+export const countPastNDays = (n: number, timestamps: any, until?: number): number => {
     return Object.values(timestamps).reduce((acc: any, date: any) => {
         const curr = new Date(date)
         const start = new Date(nDaysBeforeToday(n - 1))
@@ -125,10 +129,10 @@ export const countPastNDays = (n: number, timestamps: any, until?: number) => {
             return acc + 1
         } 
         return acc
-    }, 0)
+    }, 0) as number;
 }
 
-export const calculatePastNDayAverage = (n: number, timestamps: any, until?: number) => {
+export const calculatePastNDayAverage = (n: number, timestamps: any, until?: number): number => {
     const pastNDays: any = countByDateInRange(nDaysBeforeToday(n - 1).toISOString(), nDaysBeforeToday(until ?? 0).toISOString(), timestamps)
     // Handle div by 0 err
     if (Object.keys(pastNDays).length === 0) {
@@ -140,7 +144,7 @@ export const calculatePastNDayAverage = (n: number, timestamps: any, until?: num
     }, 0) / Object.keys(pastNDays).length
 }
 
-export const getLastTime = (timestamps: any) => {
+export const getLastTime = (timestamps: any): Date => {
     return timestamps.reduce((acc: Date, time: any) => {
         const curr = new Date(time)
         if (curr < rightNow && curr > acc) {
@@ -150,11 +154,24 @@ export const getLastTime = (timestamps: any) => {
     }, new Date().setFullYear(0))
 }
 
-export const getDifferenceInDays= (date1: Date, date2: Date): number => {
+export const getDifferenceInDays = (date1: Date, date2: Date): number => {
     const oneDay = 24 * 60 * 60 * 1000; 
     const diffTime = Math.abs(date2.getTime() - date1.getTime());
-    const diffDays = Math.ceil(diffTime / oneDay);
+    const diffDays = Math.floor(diffTime / oneDay);
     return diffDays;
+}
+
+// Gets how many total days have passed (rounds down)
+export const daysToLast = (times: string[]): string => {
+    const mostRecent = getLastTime(times)
+    const diff = getDifferenceInDays(mostRecent, now)
+    if (diff <= 0) {
+        return '(Today)'
+    } else if (diff === 1) {
+        return '(Yesterday)'
+    } else {
+        return `(${diff} days ago))`
+    }
 }
 
 export const getDayConfig = (dates: any) => {
@@ -180,12 +197,13 @@ export const getDayConfig = (dates: any) => {
                         stepSize: 1
                     }
                 }
-            }  
+            },
+            maintainAspectRatio: false
         }
     };
 }
 
-export const getHourConfig = (dates: any) => {
+export const getDailyBarGraphConfig = (dates: any) => {
     return {
         type: 'bar',
         data: {
@@ -201,13 +219,20 @@ export const getHourConfig = (dates: any) => {
         options: {
             responsive: true,
             scales: {
+                x: {
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 90
+                    }
+                },
                 y: {
                     beginAtZero: true,
                     ticks: {
                         stepSize: 1
                     }
                 }
-            }
+            },
+            maintainAspectRatio: false
         }
     };
 }

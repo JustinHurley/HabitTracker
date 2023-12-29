@@ -3,18 +3,19 @@ import { useEffect, useState } from "react";
 import { Graphs } from "../Graphs/Graphs";
 import { styled } from "styled-components";
 import moment from 'moment-timezone';
-import { dummyData, now, rightNow, timezone } from "../../util";
+import { dummyData, now, primaryColor, rightNow, timezone } from "../../util";
 
 const Container = styled.div`
     font-family: 'Helvetica', sans-serif;
     font-weight: bold;
-    margin-left: 10%;
-    margin-right: 10%;
     gap: 10px;
     display: flex;
-    align-items: center;
     flex-direction: column;
     padding: 50px;
+    width: 90dvw;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
 `
 
 const Button = styled(IonButton)`
@@ -23,7 +24,6 @@ const Button = styled(IonButton)`
 `
 
 const BigButton = styled(IonButton)`
-    margin: 10px;
     padding: 20px;
     font-weight: 900;
 `
@@ -70,6 +70,9 @@ export const Dashboard = () => {
     const getLocalData = () => {
         console.log(JSON.stringify(localStorage))
         setExportData(!exportData);
+        if (exportData) {
+            setTimestamps(timestamps)
+        }
     }
 
     const toggleDeveloperMode = () => {
@@ -80,24 +83,20 @@ export const Dashboard = () => {
         <Container>
             <BigButton color='primary' onClick={hitClick}>🍃 Toke Counter 🍃</BigButton>
             <Graphs timestamps={timestamps}/>
-            <Button color='warning' onClick={getLocalData}>Export Local Storage</Button>
+            <Button color='warning' onClick={getLocalData}>Import/Export Local Storage</Button>
             <Button color='danger' onClick={resetClick}>Reset Data</Button>
             <Button color='light' onClick={toggleDeveloperMode}>Developer Mode</Button>
             {exportData &&
-                <>
-                    <LocalStorageContainer value={JSON.stringify(localStorage)}></LocalStorageContainer>
-                </>
+                <LocalStorageContainer value={JSON.stringify(localStorage)}></LocalStorageContainer>
             }
             {developerMode && 
                 <>
                     {now.toISOString()}
-                    {timestamps.map((times: any) => (
-                        <div key={times}>{times}; {moment.utc(times).tz(timezone).format()};</div>
+                    {timestamps.map((time: any) => (
+                        <div key={time}>{time.split('T')[0]} {time} {moment.utc(time).tz(timezone).format()}</div>
                     ))} 
                 </>
             }
-            
-            
         </Container>
     )
 }
