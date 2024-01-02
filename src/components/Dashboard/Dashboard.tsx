@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Graphs } from "../Graphs/Graphs";
 import { styled } from "styled-components";
 import moment from 'moment-timezone';
-import { dummyData, now, primaryColor, rightNow, timezone } from "../../util";
+import { dummyData, timezone } from "../../util";
 
 const Container = styled.div`
     font-family: 'Helvetica', sans-serif;
@@ -46,6 +46,7 @@ export const Dashboard = () => {
     });
 
     const [exportData, setExportData] = useState(false)
+    const [importText, setImportText] = useState('')
 
     useEffect(() => {
         localStorage.setItem('timestamps', JSON.stringify(timestamps));
@@ -56,9 +57,9 @@ export const Dashboard = () => {
     }, [developerMode]);
 
     const hitClick = () => {
-        const now = rightNow
+        const now = moment.tz(timezone).toDate();
         setTimestamps((prevTimestamps: any) => [...prevTimestamps, now.toISOString()]);
-        // setTimestamps(dummyData)
+        
     }
 
     const resetClick = () => {
@@ -66,18 +67,27 @@ export const Dashboard = () => {
         console.log(JSON.stringify(localStorage))
         setTimestamps([]);
     }
+
+    const addDummyData = () => {
+        setTimestamps(dummyData)
+    }
     
     const getLocalData = () => {
         console.log(JSON.stringify(localStorage))
-        setExportData(!exportData);
+        // If export data pressed with data present, replaces it with info in textArea
         if (exportData) {
-            setTimestamps(timestamps)
+            importText != '' ? null : setTimestamps(importText)
         }
+        setExportData(!exportData);
     }
 
     const toggleDeveloperMode = () => {
         setDeveloperMode(!developerMode);
     }
+
+    const handleTextareaChange = (event: any) => {
+        setImportText(event.target.value);
+    };
 
     return(
         <Container>
@@ -87,11 +97,11 @@ export const Dashboard = () => {
             <Button color='danger' onClick={resetClick}>Reset Data</Button>
             <Button color='light' onClick={toggleDeveloperMode}>Developer Mode</Button>
             {exportData &&
-                <LocalStorageContainer value={JSON.stringify(localStorage)}></LocalStorageContainer>
+                <LocalStorageContainer id='export-text-area' value={JSON.stringify(localStorage)} onChange={handleTextareaChange}></LocalStorageContainer>
             }
             {developerMode && 
                 <>
-                    {now.toISOString()}
+                    <Button color='light' onClick={addDummyData}>Add Dummy Data</Button>
                     {timestamps.map((time: any) => (
                         <div key={time}>{time.split('T')[0]} {time} {moment.utc(time).tz(timezone).format()}</div>
                     ))} 

@@ -1,6 +1,6 @@
 import { Chart, Legend, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js/auto'
 import { Bar, Line } from 'react-chartjs-2';
-import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, now, getLastTime, getAmPmTime, getDifferenceInDays, daysToLast, getDailyBarGraphConfig } from '../../util';
+import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, getAmPmTime, getDifferenceInDays, daysToLast, getDailyBarGraphConfig, getMostRecent, getNow } from '../../util';
 import { IonLabel, IonSelect, IonSelectOption}  from '@ionic/react';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
@@ -89,8 +89,8 @@ export const Graphs = ({timestamps}: GraphsProps) => {
         localStorage.setItem('numDays', numDays.toString())
     }, [numDays])
 
-    const times: string[] = convertDatesToTimezone(timestamps)
-    const lastNDaysConfig = getDayConfig(countByDateInRange(nDaysBeforeToday(numDays).toISOString(), now.toISOString(), times))
+    const times: Date[] = convertDatesToTimezone(timestamps)
+    const lastNDaysConfig = getDayConfig(countByDateInRange(nDaysBeforeToday(numDays), getNow(), times))
     const hourConfig = getDailyBarGraphConfig(countByHour(times))
 
     const dayTotal: any = countPastNDays(1, times)
@@ -102,7 +102,7 @@ export const Graphs = ({timestamps}: GraphsProps) => {
     const pastNDayTotal: any = countPastNDays(numDays*2, times, numDays)
     const pastNDayAverage: any = calculatePastNDayAverage(numDays*2, times, numDays).toFixed(2)
 
-    const mostRecentTime = getAmPmTime(getLastTime(times))
+    const mostRecentTime = getAmPmTime(getMostRecent(times) ?? getNow())
 
     const handleSelectedDay = (event: any) => {
         setNumDays(event.detail.value)
@@ -114,21 +114,25 @@ export const Graphs = ({timestamps}: GraphsProps) => {
                 <GraphContainer className='graph-container'>
                     <SectionTitle>TODAY</SectionTitle>
                     {dayTotal > 0 ? 
-                    <>
+                        <>
+                            <RowContainer>
+                                <NumberBox text={'Total for Today'} val={dayTotal} other={prevDayTotal} useDifference={true}/>
+                                <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast(times)}/>
+                            </RowContainer>
+                            <GraphFrame>
+                                <StyledBar options={hourConfig.options} data={hourConfig.data} />
+                            </GraphFrame>
+                        </> : 
                         <RowContainer>
-                            <NumberBox text={'Total for Today'} val={dayTotal} other={prevDayTotal} useBoth={true}/>
-                            <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast(times)}/>
+                            <Label style={{fontSize: '30px'}}>None for Today 😴</Label>
                         </RowContainer>
-                        <GraphFrame>
-                            <StyledBar options={hourConfig.options} data={hourConfig.data} />
-                        </GraphFrame>
-                    </> : <Label>None for Today 😴</Label>}
+                    }
                 </GraphContainer>
                 <GraphContainer className='graph-container'>
                     <SectionTitle>TRENDS</SectionTitle>
                     <RowContainer>
-                        <NumberBox text={`${numDays}-Day Total`} val={nDayTotal} other={pastNDayTotal} useBoth={true}/>
-                        <NumberBox text={`${numDays}-Day Average`} val={nDayAverage} other={pastNDayAverage} useBoth={true}/>
+                        <NumberBox text={`${numDays}-Day Total`} val={nDayTotal} other={pastNDayTotal} useDifference={true}/>
+                        <NumberBox text={`${numDays}-Day Average`} val={nDayAverage} other={pastNDayAverage} useDifference={true}/>
                     </RowContainer>
                     <GraphFrame>
                         <StyledLine options={lastNDaysConfig.options} data={lastNDaysConfig.data} />

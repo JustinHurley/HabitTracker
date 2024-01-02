@@ -1,5 +1,5 @@
 import moment from 'moment-timezone';
-import { now, primaryColor, rightNow, timezone } from '.';
+import { primaryColor, timezone } from '.';
 
 export const countByDate = (timestamps: string[]) => {
     return timestamps.reduce((acc: any, timestamp: string) => {
@@ -9,12 +9,10 @@ export const countByDate = (timestamps: string[]) => {
     }, {})
 }
 
-export const countByDateInRange = (start: string, end: string, timestamps: string[]) => {
-    const startDate = new Date(start.split('T')[0])
-    const endDate = new Date(end.split('T')[0])
-    return timestamps.reduce((acc: any, date: string) => {
-        const currDate = new Date(date.split('T')[0])
-        if (currDate >= startDate && currDate <= endDate) {
+export const countByDateInRange = (start: Date, end: Date, timestamps: Date[]) => {
+    return timestamps.reduce((acc: any, date: Date) => {
+        const currDate = new Date(date.toISOString().split('T')[0])
+        if (currDate >= start && currDate <= end) {
             const updatedDate = currDate.toISOString().split('T')[0]
             acc[updatedDate] = acc[updatedDate] ? acc[updatedDate] + 1 : 1
         }
@@ -22,10 +20,10 @@ export const countByDateInRange = (start: string, end: string, timestamps: strin
     }, createDateMap(start, end))
 }
 
-export const countByHour = (timestamps: string[], date?: any) => {
-    const today = date ? date : now.toISOString().split('T')[0]
-    return timestamps.reduce((acc: any, timestamp: string) => {
-        const curr = timestamp.split('T')[0]
+export const countByHour = (timestamps: Date[], date?: any) => {
+    const today = date ? date : getNow().toISOString().split('T')[0]
+    return timestamps.reduce((acc: any, timestamp: Date) => {
+        const curr = timestamp.toISOString().split('T')[0]
         const hour = convertToHour(timestamp)
         if (curr === today) {
             acc[hour] = acc[hour] ? acc[hour] + 1 : 1
@@ -48,30 +46,32 @@ const makeHoursOfDayMap = (useAmPm = true) => {
     }
 }
 
-export const convertDatesToTimezone = (timestamps: string[], tz = timezone): string[] => {
+export const convertDatesToTimezone = (timestamps: string[], tz = timezone): Date[] => {
     return timestamps.reduce((acc: any, time: string) => {
         const date = new Date(time)
-        acc.push(moment.utc(date).tz(tz).format())
+        acc.push(moment.utc(date).tz(tz).toDate())
         return acc
     }, [])
 }
 
-export const createDateMap = (startDate: string, endDate: string) => {
+export const createDateMap = (startDate: Date, endDate: Date) => {
     const dateMap: any = {};
-    let currentDate = new Date(startDate);
-    while (currentDate <= new Date(endDate)) {
+    const start = new Date(startDate.toISOString().split('T')[0])
+    const end = new Date(endDate.toISOString().split('T')[0])
+    let current = new Date(start);
+    while (current <= end) {
         // Format the date as a string (e.g., 'YYYY-MM-DD')
-        const dateKey = currentDate.toISOString().split('T')[0];
+        const dateKey = current.toISOString().split('T')[0];
         // Set the value to 0
         dateMap[dateKey] = 0;
         // Move to the next day
-        currentDate.setDate(currentDate.getDate() + 1);
+        current.setDate(current.getDate() + 1);
     }
     return dateMap;
 }
 
-export const convertToHour = (timestamp: string, useAmPm = true): string => {
-    const hour = parseInt(timestamp.split('T')[1].split(':')[0])
+export const convertToHour = (timestamp: Date, useAmPm = true): string => {
+    const hour = parseInt(timestamp.toISOString().split('T')[1].split(':')[0])
     if (useAmPm) {
         if (hour === 0) {
             return '12 AM';
@@ -89,7 +89,7 @@ export const convertToHour = (timestamp: string, useAmPm = true): string => {
 
 export const getAmPmTime = (time: Date): string => {
     if (!(time instanceof Date)) {
-        console.error('Invalid Date entered in getAmPmTime')
+        console.error(`Invalid Date entered in getAmPmTime: ${time}`)
         return 'ERROR: Invalid time'
     }
     const hours = time.getHours()
@@ -109,22 +109,19 @@ export const getAmPmTime = (time: Date): string => {
 }
 
 export const nDaysBeforeToday = (n: number): Date => {
-    const today = new Date(now)
+    const today = getToday()
     today.setDate(today.getDate() - n)
     const before = new Date(today)
     before.setHours(0, 0, 0, 0)
     return before
 }
 
-export const countPastNDays = (n: number, timestamps: any, until?: number): number => {
-    return Object.values(timestamps).reduce((acc: any, date: any) => {
-        const curr = new Date(date)
-        const start = new Date(nDaysBeforeToday(n - 1))
-        const end = new Date(now)
-        end.setDate(end.getDate() + 1)
-        if (until) {
-            end.setDate(end.getDate() - until)
-        }
+// Looks back and counts all the timestamps between n days ago to until days ago
+export const countPastNDays = (n: number, timestamps: Date[], until = 0): number => {
+    return Object.values(timestamps).reduce((acc: number, date: Date) => {
+        const curr = date
+        const start = new Date(nDaysBeforeToday(n))
+        const end = getEndOfDay(new Date(nDaysBeforeToday(until)))
         if (curr <= end && curr >= start) {
             return acc + 1
         } 
@@ -133,7 +130,7 @@ export const countPastNDays = (n: number, timestamps: any, until?: number): numb
 }
 
 export const calculatePastNDayAverage = (n: number, timestamps: any, until?: number): number => {
-    const pastNDays: any = countByDateInRange(nDaysBeforeToday(n - 1).toISOString(), nDaysBeforeToday(until ?? 0).toISOString(), timestamps)
+    const pastNDays: any = countByDateInRange(nDaysBeforeToday(n - 1), nDaysBeforeToday(until ?? 0), timestamps)
     // Handle div by 0 err
     if (Object.keys(pastNDays).length === 0) {
         return 0
@@ -144,14 +141,14 @@ export const calculatePastNDayAverage = (n: number, timestamps: any, until?: num
     }, 0) / Object.keys(pastNDays).length
 }
 
-export const getLastTime = (timestamps: any): Date => {
-    return timestamps.reduce((acc: Date, time: any) => {
-        const curr = new Date(time)
-        if (curr < rightNow && curr > acc) {
-            acc = curr
+export const getMostRecent = (timestamps: Date[]): Date | null => {
+    const now = getNow()
+    return timestamps.reduce((mostRecent: Date, curr: Date) => {
+        if (curr <= now && curr > mostRecent) {
+            mostRecent = curr
         }
-        return acc
-    }, new Date().setFullYear(0))
+        return mostRecent
+    }, null as unknown as Date);
 }
 
 export const getDifferenceInDays = (date1: Date, date2: Date): number => {
@@ -161,10 +158,27 @@ export const getDifferenceInDays = (date1: Date, date2: Date): number => {
     return diffDays;
 }
 
+export const getNow = (): Date => {
+    return moment().tz(timezone).toDate()
+}
+
+export const getToday = (): Date => {
+    const today = moment().tz(timezone).toDate()
+    today.setHours(0, 0, 0, 0)
+    return today
+}
+
+export const getEndOfDay = (date: Date): Date => {
+    const res = date
+    res.setHours(23, 59, 59, 9)
+    return res
+}
+
 // Gets how many total days have passed (rounds down)
-export const daysToLast = (times: string[]): string => {
-    const mostRecent = getLastTime(times)
-    const diff = getDifferenceInDays(mostRecent, now)
+export const daysToLast = (times: Date[]): string => {
+    const mostRecent = getMostRecent(times)
+    const now = getNow()
+    const diff = getDifferenceInDays(mostRecent ?? now, now)
     if (diff <= 0) {
         return '(Today)'
     } else if (diff === 1) {
