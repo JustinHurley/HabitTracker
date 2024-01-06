@@ -7,7 +7,7 @@ const Label = styled(IonLabel)`
     font-size: 16px;
 `
 const Num = styled(IonLabel)`
-   font-size: 32px;
+   font-size: 30px;
    white-space: nowrap;
    margin-top: 5px;
 `
@@ -24,8 +24,8 @@ const Box = styled.div`
     background-color: ${primaryColor};
     border-radius: 5px;
     width: 35dvw;
-    height: 10dvh;
-    padding: 10px;
+    height: 100%;
+    padding: 1dvh;
     height: auto;
     justify-content: space-between;
 `
@@ -47,16 +47,21 @@ const buildDifference = (curr: number, past: number) => {
     return (`${val}`)
 }
 
-const buildPercentage = (curr: number, past: number) => {
-    let val = '0%'
-    if (past == 0) {
-        val = 'inf%'
+const buildPercentage = (curr: number, past: number, decimals = 2) => {
+    if (curr === past) {
+        return '(+0%)'
     } else if (curr > past) {
-        val = `+${((curr/past)*100).toFixed(0)}%`
+        if (past === 0) {
+            return '(+inf%)'
+        }
+        return (`(+${(curr/past).toFixed(decimals)}%)`)
     } else if (curr < past) {
-        val = `${((curr/past)*100).toFixed(0)}%`
+        if (curr === 0) {
+            return '(-inf%)'
+        }
+        return (`(-${(past/curr).toFixed(decimals)}%)`)
     }
-    return (`(${val})`)
+    return NaN
 }
 
 interface NumberBoxProps {

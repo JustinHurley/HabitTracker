@@ -1,10 +1,11 @@
 import { Chart, Legend, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js/auto'
 import { Bar, Line } from 'react-chartjs-2';
-import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, getAmPmTime, getDifferenceInDays, daysToLast, getDailyBarGraphConfig, getMostRecent, getNow } from '../../util';
+import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, getAmPmTime, getDifferenceInDays, daysToLast, getDailyBarGraphConfig, getMostRecent, getNow, setObject, stringsToDates } from '../../util';
 import { IonLabel, IonSelect, IonSelectOption}  from '@ionic/react';
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { NumberBox } from '../Stats/NumberBox';
+import { GlobalState } from '../State/State';
 
 Chart.register(
     LinearScale,
@@ -71,30 +72,25 @@ const IonSelectStyled = styled(IonSelect)`
 `
 
 const RowContainer = styled.div`
-    align-items: center;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
+    height: 15dvh;
 `
 interface GraphsProps {
-    timestamps: string[]
+    props: GlobalState | null
 }
 
-export const Graphs = ({timestamps}: GraphsProps) => {
+export const Graphs = ({props}: GraphsProps) => {
     const [numDays, setNumDays] = useState(() => {
         return parseInt(localStorage.getItem('numDays') ?? '30') ;
     })
 
-    useEffect(() => {
-        localStorage.setItem('numDays', numDays.toString())
-    }, [numDays])
-
-    const times: Date[] = convertDatesToTimezone(timestamps)
+    const times: Date[] = convertDatesToTimezone(stringsToDates(props?.timestamps ?? []))
     const lastNDaysConfig = getDayConfig(countByDateInRange(nDaysBeforeToday(numDays), getNow(), times))
     const hourConfig = getDailyBarGraphConfig(countByHour(times))
 
     const dayTotal: any = countPastNDays(1, times)
-    const prevDayTotal: any = countPastNDays(2, times, 1)
 
     const nDayTotal: any = countPastNDays(numDays, times)
     const nDayAverage: any = calculatePastNDayAverage(numDays, times).toFixed(2)
@@ -116,7 +112,7 @@ export const Graphs = ({timestamps}: GraphsProps) => {
                     {dayTotal > 0 ? 
                         <>
                             <RowContainer>
-                                <NumberBox text={'Total for Today'} val={dayTotal} other={prevDayTotal} useDifference={true}/>
+                                <NumberBox text={'Total for Today'} val={dayTotal}/>
                                 <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast(times)}/>
                             </RowContainer>
                             <GraphFrame>

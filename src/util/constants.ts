@@ -1,8 +1,10 @@
 export const primaryColor = '#49ba49'
 
-export const timezone = 'America/New_York';
+export const DEFAULT_TIMEZONE = 'America/New_York';
 
 export const dayOptions = [1, 2, 3, 7, 15, 30, 60, 90]
+
+export const UNITS = 'tokes'
 
 export const hoursOfDayAmPm = {
     '12 AM': 0, '1 AM': 0, '2 AM': 0, '3 AM': 0, '4 AM': 0, '5 AM': 0, 

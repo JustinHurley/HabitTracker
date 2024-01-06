@@ -1,35 +1,39 @@
 import moment from 'moment-timezone';
-import { primaryColor, timezone } from '.';
+import { primaryColor, DEFAULT_TIMEZONE } from '.';
 
-export const countByDate = (timestamps: string[]) => {
-    return timestamps.reduce((acc: any, timestamp: string) => {
+export const stringsToDates = (strings: string[]): Date[] => {
+    return strings.map((s) => new Date(s))
+}
+
+export const countByDate = (timestamps?: string[]) => {
+    return timestamps ? timestamps.reduce((acc: any, timestamp: string) => {
         const date = timestamp.split('T')[0]
         acc[date] = acc[date] ? acc[date] + 1 : 1
         return acc
-    }, {})
+    }, {}) : {}
 }
 
-export const countByDateInRange = (start: Date, end: Date, timestamps: Date[]) => {
-    return timestamps.reduce((acc: any, date: Date) => {
+export const countByDateInRange = (start: Date, end: Date, timestamps?: Date[]) => {
+    return timestamps ? timestamps.reduce((acc: any, date: Date) => {
         const currDate = new Date(date.toISOString().split('T')[0])
         if (currDate >= start && currDate <= end) {
             const updatedDate = currDate.toISOString().split('T')[0]
             acc[updatedDate] = acc[updatedDate] ? acc[updatedDate] + 1 : 1
         }
         return acc
-    }, createDateMap(start, end))
+    }, createDateMap(start, end)) : createDateMap(start, end)
 }
 
-export const countByHour = (timestamps: Date[], date?: any) => {
+export const countByHour = (timestamps?: Date[], date?: any) => {
     const today = date ? date : getNow().toISOString().split('T')[0]
-    return timestamps.reduce((acc: any, timestamp: Date) => {
+    return timestamps ? timestamps.reduce((acc: any, timestamp: Date) => {
         const curr = timestamp.toISOString().split('T')[0]
         const hour = convertToHour(timestamp)
         if (curr === today) {
             acc[hour] = acc[hour] ? acc[hour] + 1 : 1
         }
         return acc
-    }, makeHoursOfDayMap())
+    }, makeHoursOfDayMap()) : makeHoursOfDayMap()
 }
 
 const makeHoursOfDayMap = (useAmPm = true) => {
@@ -46,12 +50,12 @@ const makeHoursOfDayMap = (useAmPm = true) => {
     }
 }
 
-export const convertDatesToTimezone = (timestamps: string[], tz = timezone): Date[] => {
-    return timestamps.reduce((acc: any, time: string) => {
-        const date = new Date(time)
-        acc.push(moment.utc(date).tz(tz).toDate())
+export const convertDatesToTimezone = (timestamps?: Date[], tz = DEFAULT_TIMEZONE): Date[] => {
+    return timestamps ? timestamps.reduce((acc: any, date: Date) => {
+        const curr = new Date(date)
+        acc.push(moment.utc(curr).tz(tz).toDate())
         return acc
-    }, [])
+    }, []) : []
 }
 
 export const createDateMap = (startDate: Date, endDate: Date) => {
@@ -71,7 +75,7 @@ export const createDateMap = (startDate: Date, endDate: Date) => {
 }
 
 export const convertToHour = (timestamp: Date, useAmPm = true): string => {
-    const hour = parseInt(timestamp.toISOString().split('T')[1].split(':')[0])
+    const hour = timestamp.getHours()
     if (useAmPm) {
         if (hour === 0) {
             return '12 AM';
@@ -96,7 +100,7 @@ export const getAmPmTime = (time: Date): string => {
     const minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : `${time.getMinutes()}`
     let ans = ''
     if (hours === 0 || hours === 12) {
-        ans = `12${minutes}`
+        ans = `12:${minutes}`
     } else {
         ans = `${hours%12}:${minutes}`
     }
@@ -120,7 +124,7 @@ export const nDaysBeforeToday = (n: number): Date => {
 export const countPastNDays = (n: number, timestamps: Date[], until = 0): number => {
     return Object.values(timestamps).reduce((acc: number, date: Date) => {
         const curr = date
-        const start = new Date(nDaysBeforeToday(n))
+        const start = new Date(nDaysBeforeToday(n-1))
         const end = getEndOfDay(new Date(nDaysBeforeToday(until)))
         if (curr <= end && curr >= start) {
             return acc + 1
@@ -158,11 +162,11 @@ export const getDifferenceInDays = (date1: Date, date2: Date): number => {
     return diffDays;
 }
 
-export const getNow = (): Date => {
+export const getNow = (timezone = DEFAULT_TIMEZONE): Date => {
     return moment().tz(timezone).toDate()
 }
 
-export const getToday = (): Date => {
+export const getToday = (timezone = DEFAULT_TIMEZONE): Date => {
     const today = moment().tz(timezone).toDate()
     today.setHours(0, 0, 0, 0)
     return today
