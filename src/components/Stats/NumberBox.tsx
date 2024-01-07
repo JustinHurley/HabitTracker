@@ -7,9 +7,17 @@ const Label = styled(IonLabel)`
     font-size: 16px;
 `
 const Num = styled(IonLabel)`
-   font-size: 30px;
+   font-size: 26px;
    white-space: nowrap;
    margin-top: 5px;
+`
+
+const BigNum = styled(IonLabel)`
+   font-size: 45px;
+   white-space: nowrap;
+   margin-top: 5px;
+   margin-top: auto;
+   margin-bottom: auto;
 `
 
 const Detail = styled(IonLabel)`
@@ -17,6 +25,7 @@ const Detail = styled(IonLabel)`
     white-space: nowrap;
     margin: 2.5px;
 `
+
 const Box = styled.div`
     flex-direction: column;
     display: flex;
@@ -76,7 +85,7 @@ export const NumberBox = ({text, val, other, useDifference}: NumberBoxProps) => 
     return (
         <Box>
             <Label>{text}</Label>
-            <Num>{val}</Num>
+            {other ? <Num>{val}</Num> : <BigNum>{val}</BigNum>}
             {(other || other === 0) && 
                 <RowContainer>            
                     {useDifference && <Detail>{buildDifference(parseInt(val.toString()), parseInt(other.toString()))}</Detail>}

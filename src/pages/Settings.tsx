@@ -66,9 +66,8 @@ export const Settings = () => {
                                 console.log(globalState.timestamps)
                                 if (time) {
                                     return (
-                                        <div key={time}>
-                                            {time.split('T')[0]} 
-                                            {time} 
+                                        <div key={time} style={{fontSize: '10px'}}>
+                                            {time}  
                                             {moment.utc(time).tz(DEFAULT_TIMEZONE).format()}
                                         </div>
                                     )

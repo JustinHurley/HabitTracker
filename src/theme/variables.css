@@ -7,7 +7,7 @@ http://ionicframework.com/docs/theming/ */
   --ion-text-color: #ffffff;
 
   /** primary **/
-  --ion-color-primary: #49ba49;
+  --ion-color-primary: #245eff;
   --ion-color-primary-rgb: 56, 128, 255;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
@@ -86,7 +86,7 @@ http://ionicframework.com/docs/theming/ */
    */
 
   body {
-    --ion-color-primary: #49ba49;
+    --ion-color-primary: var(--ion-color-primary);
     --ion-color-primary-rgb: 66,140,255;
     --ion-color-primary-contrast: #ffffff;
     --ion-color-primary-contrast-rgb: 255,255,255;

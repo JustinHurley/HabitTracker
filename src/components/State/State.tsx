@@ -4,12 +4,14 @@ import { getObject, saveState } from "../../util"
 export interface GlobalState {
     timestamps: string[],
     developerMode: boolean,
+    numDays: number,
     [key: string]: any
 }
 
 export const emptyGlobalState: GlobalState = {
     timestamps: [],
-    developerMode: false
+    developerMode: false,
+    numDays: 30
 }
 
 export const GlobalContext = createContext<{
@@ -30,19 +32,35 @@ export const updateGlobalState = (key: string, value: any) => {
 };
 
 export const addTimestamp = (timestamp: string, state: GlobalState | null): GlobalState => {
-    if (state) {
-        return state.timestamps ? {
-            ...state,
-            timestamps: [...state.timestamps, timestamp]
-        } : {
-            ...state,
-            timestamps: [timestamp]
-        }
-    } else {
+    const currentState = state || emptyGlobalState
+    return currentState.timestamps ? {
+        ...currentState,
+        timestamps: [...currentState.timestamps, timestamp]
+    } : {
+        ...currentState,
+        timestamps: [timestamp]
+    }
+}
+
+export const removeLastTimestamp = (state: GlobalState | null): GlobalState => {
+    const currentState = state || emptyGlobalState
+    console.log('before', currentState)
+    if (currentState.timestamps) {
+        currentState.timestamps.pop()
         return {
-            ...emptyGlobalState,
-            timestamps: [timestamp]
+            ...currentState,
+            timestamps: [...currentState.timestamps]
         }
+    }
+    console.log('after', currentState)
+    return currentState
+}
+
+export const updateNumDays = (numDays: number, state: GlobalState | null): GlobalState => {
+    const currentState = state || emptyGlobalState;
+    return {
+        ...currentState,
+        numDays: numDays
     }
 }
 
@@ -51,7 +69,6 @@ export const GlobalProvider = ({ children }: any) => {
     const [loading, setLoading] = useState(true)
 
     const loadInitialData = async () => {
-        setLoading(true)
         const globalState = await getObject('globalState')
         console.log(`Loading initial data`, globalState)
         setGlobalState(globalState)
@@ -64,6 +81,7 @@ export const GlobalProvider = ({ children }: any) => {
     }, []);
 
     useEffect(() => {
+        console.log('updating globalState...')
         if (globalState !== null) {
             saveState(globalState)
                 .catch(console.error)

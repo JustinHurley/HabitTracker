@@ -1,4 +1,4 @@
-export const primaryColor = '#49ba49'
+export const primaryColor = '#245eff'
 
 export const DEFAULT_TIMEZONE = 'America/New_York';
 

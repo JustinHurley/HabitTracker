@@ -13,21 +13,21 @@ export const countByDate = (timestamps?: string[]) => {
     }, {}) : {}
 }
 
-export const countByDateInRange = (start: Date, end: Date, timestamps?: Date[]) => {
+export const countByDateInRange = (start: Date, end: Date, timestamps?: Date[], timezone=DEFAULT_TIMEZONE) => {
     return timestamps ? timestamps.reduce((acc: any, date: Date) => {
-        const currDate = new Date(date.toISOString().split('T')[0])
+        const currDate = new Date(moment(date).tz(timezone).format().split('T')[0])
         if (currDate >= start && currDate <= end) {
-            const updatedDate = currDate.toISOString().split('T')[0]
+            const updatedDate = moment(currDate).tz(timezone).format().split('T')[0]
             acc[updatedDate] = acc[updatedDate] ? acc[updatedDate] + 1 : 1
         }
         return acc
     }, createDateMap(start, end)) : createDateMap(start, end)
 }
 
-export const countByHour = (timestamps?: Date[], date?: any) => {
-    const today = date ? date : getNow().toISOString().split('T')[0]
+export const countByHour = (timestamps?: Date[], date?: string, timezone=DEFAULT_TIMEZONE): {} => {
+    const today: string = date ? date : moment(date).tz(timezone).format().split('T')[0]
     return timestamps ? timestamps.reduce((acc: any, timestamp: Date) => {
-        const curr = timestamp.toISOString().split('T')[0]
+        const curr = moment(timestamp).tz(timezone).format().split('T')[0]
         const hour = convertToHour(timestamp)
         if (curr === today) {
             acc[hour] = acc[hour] ? acc[hour] + 1 : 1
@@ -36,7 +36,7 @@ export const countByHour = (timestamps?: Date[], date?: any) => {
     }, makeHoursOfDayMap()) : makeHoursOfDayMap()
 }
 
-const makeHoursOfDayMap = (useAmPm = true) => {
+const makeHoursOfDayMap = (useAmPm = true): {} => {
     return useAmPm ? {
         '12 AM': 0, '1 AM': 0, '2 AM': 0, '3 AM': 0, '4 AM': 0, '5 AM': 0, 
         '6 AM': 0, '7 AM': 0, '8 AM': 0, '9 AM': 0, '10 AM': 0, '11 AM': 0, 
@@ -58,14 +58,14 @@ export const convertDatesToTimezone = (timestamps?: Date[], tz = DEFAULT_TIMEZON
     }, []) : []
 }
 
-export const createDateMap = (startDate: Date, endDate: Date) => {
+export const createDateMap = (startDate: Date, endDate: Date, timezone = DEFAULT_TIMEZONE) => {
     const dateMap: any = {};
-    const start = new Date(startDate.toISOString().split('T')[0])
-    const end = new Date(endDate.toISOString().split('T')[0])
+    const start = new Date(moment(startDate).tz(timezone).format().split('T')[0])
+    const end = new Date(moment(endDate).tz(timezone).format().split('T')[0])
     let current = new Date(start);
     while (current <= end) {
         // Format the date as a string (e.g., 'YYYY-MM-DD')
-        const dateKey = current.toISOString().split('T')[0];
+        const dateKey = moment(current).tz(timezone).format().split('T')[0];
         // Set the value to 0
         dateMap[dateKey] = 0;
         // Move to the next day
@@ -166,6 +166,10 @@ export const getNow = (timezone = DEFAULT_TIMEZONE): Date => {
     return moment().tz(timezone).toDate()
 }
 
+export const getNowUTC = (): Date => {
+    return moment().toDate()
+}
+
 export const getToday = (timezone = DEFAULT_TIMEZONE): Date => {
     const today = moment().tz(timezone).toDate()
     today.setHours(0, 0, 0, 0)
@@ -192,7 +196,7 @@ export const daysToLast = (times: Date[]): string => {
     }
 }
 
-export const getDayConfig = (dates: any) => {
+export const getDayConfig = (dates: {}) => {
     return {
         type: 'line',
         data: {
@@ -221,7 +225,7 @@ export const getDayConfig = (dates: any) => {
     };
 }
 
-export const getDailyBarGraphConfig = (dates: any) => {
+export const getDailyBarGraphConfig = (dates: {}) => {
     return {
         type: 'bar',
         data: {

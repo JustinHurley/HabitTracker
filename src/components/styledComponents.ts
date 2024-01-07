@@ -8,11 +8,11 @@ export const StyledIonPage = styled(IonPage)`
 export const Container = styled.div`
     font-family: 'Helvetica', sans-serif;
     font-weight: bold;
-    gap: 10px;
+    gap: 1dvw;
     display: flex;
     flex-direction: column;
-    padding: 50px;
-    width: 90dvw;
+    padding: 5dvw;
+    width: 95dvw;
     align-items: center;
     margin-left: auto;
     margin-right: auto;
@@ -20,18 +20,18 @@ export const Container = styled.div`
 
 export const Button = styled(IonButton)`
     width: auto;
-    margin: 10px;
+    margin: 1dvw;
 `
 
 export const BigButton = styled(IonButton)`
-    padding: 20px;
+    padding: 2dvw;
     font-weight: 900;
 `
 
 export const LocalStorageContainer = styled(IonTextarea)`
     background-color: white;
     color: black;
-    padding-left: 10px;
+    padding-left: 1dvw;
     max-height: auto;
     min-height: 50vh;
     resize: both;
