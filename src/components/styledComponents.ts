@@ -1,5 +1,5 @@
-import { IonButton, IonPage, IonTextarea } from "@ionic/react"
-import { styled } from "styled-components"
+import { IonButton, IonLabel, IonPage, IonTextarea } from "@ionic/react"
+import styled from "styled-components"
 
 export const StyledIonPage = styled(IonPage)`
   background-color: black;
@@ -35,4 +35,27 @@ export const LocalStorageContainer = styled(IonTextarea)`
     max-height: auto;
     min-height: 50vh;
     resize: both;
+`
+
+export const Label = styled(IonLabel)`
+    margin: auto;
+    padding: 1dvh;
+`
+
+export const SectionTitle = styled.h3`
+    margin: 2dvh;
+    font-weight: bold;
+    font-size: 45px;
+`
+
+export const RowContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 1dvh;
+`
+
+export const GraphsContainer = styled.div`
+    display: grid;
+    align-items: center;
 `

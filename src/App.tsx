@@ -1,8 +1,12 @@
+import Add from './pages/Add';
+import Settings from './pages/Settings';
+import Stats from './pages/Stats';
+import { GlobalProvider } from './components/State/State';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { settingsSharp, addCircleSharp } from 'ionicons/icons';
-import { Add } from './pages/Add';
+import { settingsSharp, addCircleSharp, statsChartSharp } from 'ionicons/icons';
+
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -22,9 +26,7 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { Settings } from './pages/Settings';
-import { useCallback, useState } from 'react';
-import { GlobalProvider } from './components/State/State';
+
 
 setupIonicReact();
 
@@ -41,11 +43,18 @@ const App: React.FC = () => {
               <Route exact path='/settings'>
                 <Settings />
               </Route>
+              <Route exact path='/stats'>
+                <Stats/>
+              </Route>
               <Route exact path='/'>
                 <Redirect to="/add" />
               </Route>
             </IonRouterOutlet>
             <IonTabBar slot='bottom'>
+              <IonTabButton tab='stats' href='/stats'>
+                <IonIcon icon={statsChartSharp}/>
+                <IonLabel>Stats</IonLabel>
+              </IonTabButton>
               <IonTabButton tab='add' href='/add'>
                 <IonIcon icon={addCircleSharp}/>
                 <IonLabel>Add</IonLabel>

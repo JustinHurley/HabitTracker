@@ -2,49 +2,6 @@ import { IonLabel } from "@ionic/react"
 import { styled } from "styled-components"
 import { primaryColor } from "../../util"
 
-const Label = styled(IonLabel)`
-    align-items: center;
-    font-size: 16px;
-`
-const Num = styled(IonLabel)`
-   font-size: 26px;
-   white-space: nowrap;
-   margin-top: 5px;
-`
-
-const BigNum = styled(IonLabel)`
-   font-size: 45px;
-   white-space: nowrap;
-   margin-top: 5px;
-   margin-top: auto;
-   margin-bottom: auto;
-`
-
-const Detail = styled(IonLabel)`
-    font-size: 14px;
-    white-space: nowrap;
-    margin: 2.5px;
-`
-
-const Box = styled.div`
-    flex-direction: column;
-    display: flex;
-    align-items: center;
-    background-color: ${primaryColor};
-    border-radius: 5px;
-    width: 35dvw;
-    height: 100%;
-    padding: 1dvh;
-    height: auto;
-    justify-content: space-between;
-`
-
-const RowContainer = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-`
-
 const buildDifference = (curr: number, past: number) => {
     const diff = curr - past;
     let val = '+0'
@@ -96,3 +53,43 @@ export const NumberBox = ({text, val, other, useDifference}: NumberBoxProps) => 
         </Box>
     )
 }
+
+const Label = styled(IonLabel)`
+    align-items: center;
+    font-size: 16px;
+    margin: 1dvh;
+`
+const Num = styled(IonLabel)`
+   font-size: 30px;
+   white-space: nowrap;
+   margin-top: 5px;
+`
+
+const BigNum = styled(IonLabel)`
+   font-size: 45px;
+   white-space: nowrap;
+   margin: auto;
+`
+
+const Detail = styled(IonLabel)`
+    font-size: 14px;
+    white-space: nowrap;
+    margin: 1dvh 0.5dvh;
+`
+
+const Box = styled.div`
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    background-color: ${primaryColor};
+    border-radius: 1dvh;
+    width: 40dvw;
+    padding: 1dvh;
+    justify-content: space-between;
+`
+
+const RowContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+`

@@ -1,11 +1,12 @@
 import { Chart, Legend, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js/auto'
 import { Bar, Line } from 'react-chartjs-2';
-import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, getAmPmTime, getDifferenceInDays, daysToLast, getDailyBarGraphConfig, getMostRecent, getNow, setObject, stringsToDates } from '../../util';
-import { IonLabel, IonSelect, IonSelectOption}  from '@ionic/react';
+import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, getAmPmTime, daysToLast, getDailyBarGraphConfig, getMostRecent, getNow, stringsToDates } from '../../util';
+import { IonSelect, IonSelectOption}  from '@ionic/react';
 import styled from 'styled-components';
 import { useContext } from 'react';
 import { NumberBox } from '../Stats/NumberBox';
 import { GlobalContext, GlobalState, updateNumDays } from '../State/State';
+import { GraphsContainer, Label, RowContainer, SectionTitle } from '../styledComponents';
 
 Chart.register(
     LinearScale,
@@ -43,108 +44,74 @@ export const Graphs = ({props}: GraphsProps) => {
     }
  
     return (
-        <>
-            <GraphsContainer className='graphs-container'>
-                <GraphContainer className='graph-container'>
-                    <SectionTitle>TODAY</SectionTitle>
-                    {dayTotal > 0 ? 
-                        <>
-                            <RowContainer>
-                                <NumberBox text={'Total for Today'} val={dayTotal}/>
-                                <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast(times)}/>
-                            </RowContainer>
-                            <GraphFrame>
-                                <StyledBar options={hourConfig.options} data={hourConfig.data} />
-                            </GraphFrame>
-                        </> : 
-                        <RowContainer>
-                            <Label style={{fontSize: '30px'}}>None for Today 😴</Label>
-                        </RowContainer>
-                    }
-                </GraphContainer>
-                <GraphContainer className='graph-container'>
-                    <SectionTitle>TRENDS</SectionTitle>
+        <GraphsContainer className='graphs-container'>
+            <SectionTitle>TODAY</SectionTitle>
+            {dayTotal > 0 ? 
+                <>
                     <RowContainer>
-                        <NumberBox text={`${numDays}-Day Total`} val={nDayTotal} other={pastNDayTotal} useDifference={true}/>
-                        <NumberBox text={`${numDays}-Day Average`} val={nDayAverage} other={pastNDayAverage} useDifference={true}/>
+                        <NumberBox text={'Total for Today'} val={dayTotal}/>
+                        <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast(times)}/>
                     </RowContainer>
                     <GraphFrame>
-                        <StyledLine options={lastNDaysConfig.options} data={lastNDaysConfig.data} />
+                        <StyledBar options={hourConfig.options} data={hourConfig.data} />
                     </GraphFrame>
-                    <RangeBox>
-                    <Label style={{fontSize: '12px'}}>Select Day Range</Label>
-                        <IonSelectStyled value={numDays} onIonChange={handleSelectedDay}>
-                            {dayOptions.map((day: number) => {
-                                return(
-                                    <IonSelectOption key={day} value={day}>{day} Day(s)</IonSelectOption>
-                                )
-                            })}
-                        </IonSelectStyled>
-                    </RangeBox>
-                </GraphContainer>
-            </GraphsContainer>
-        </>
+                </> : 
+                <RowContainer>
+                    <Label style={{fontSize: '30px'}}>😴 None for Today 😴</Label>
+                </RowContainer>
+            }
+            <SectionTitle>TRENDS</SectionTitle>
+            <RowContainer>
+                <NumberBox text={`${numDays}-Day Total`} val={nDayTotal} other={pastNDayTotal} useDifference={true}/>
+                <NumberBox text={`${numDays}-Day Average`} val={nDayAverage} other={pastNDayAverage} useDifference={true}/>
+            </RowContainer>
+            <GraphFrame>
+                <StyledLine options={lastNDaysConfig.options} data={lastNDaysConfig.data} />
+            </GraphFrame>
+            <RangeBox>
+            <Label style={{fontSize: '12px'}}>Select Day Range</Label>
+                <IonSelectStyled value={numDays} onIonChange={handleSelectedDay}>
+                    {dayOptions.map((day: number) => {
+                        return(
+                            <IonSelectOption key={day} value={day}>{day} Day(s)</IonSelectOption>
+                        )
+                    })}
+                </IonSelectStyled>
+            </RangeBox>
+        </GraphsContainer>
     );
 }
 
 const StyledBar = styled(Bar)`
-    margin: 10px;
+    margin: 1dvh;
     background-color: white;
-    border-radius: 5px;
+    border-radius: 1dvh;
 `
 
 const StyledLine = styled(Line)`
-    margin: 10px;
+    margin: 1dvh;
     background-color: white;
-    border-radius: 5px;
-`
-
-const GraphsContainer = styled.div`
-    display: grid;
-    align-items: center;
-`
-const GraphContainer = styled.div`
-    width: 80dvw;
-    align-items: center;
-    margin-bottom: 20px;
+    border-radius: 1dvh;
 `
 
 const GraphFrame = styled.div`
-    height: 30dvh;
-`
-
-const Label = styled(IonLabel)`
-    margin: auto;
-    padding: 5px;
+    height: 35dvh;
 `
 
 const RangeBox = styled.div`
     display: flex;
     align-items: center;
     background-color: ${primaryColor};
-    border-radius: 5px;
-    margin: 10px;
+    border-radius: 1dvh;
+    margin: 0dvh 1dvh;
 `
 
-const SectionTitle = styled.h3`
-    margin: 10px;
-    font-weight: bold;
-    font-size: 45px;
-`
 const IonSelectStyled = styled(IonSelect)`
-    margin: 10px;
+    margin: 1dvh;
     width: 35dvh;
     font-size: 18px;
     background-color: black;
-    border-radius: 5px;
-    padding: 5px;
-    padding-left: 10px;
+    border-radius: 1dvh;
+    padding: 1dvh;
     margin-left: auto;
-`
-
-const RowContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    height: 15dvh;
 `

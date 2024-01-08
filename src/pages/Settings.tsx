@@ -2,10 +2,10 @@ import moment from 'moment';
 import { useState, useContext } from 'react';
 import { Container, Button, LocalStorageContainer, StyledIonPage } from '../components'
 import { dummyData, DEFAULT_TIMEZONE } from '../util';
-import { IonContent, IonHeader } from '@ionic/react';
+import { IonContent, IonHeader, IonToolbar } from '@ionic/react';
 import { GlobalContext, GlobalState } from '../components/State/State';
 
-export const Settings = () => {
+const Settings = () => {
     const { globalState, setGlobalState } = useContext(GlobalContext)
     const [ importText, setImportText ] = useState('')
     const [ exportData, setExportData ] = useState(false)
@@ -49,9 +49,12 @@ export const Settings = () => {
 
     return(
         <StyledIonPage>
+            <IonHeader>
+                <IonToolbar>
+          
+                </IonToolbar>
+            </IonHeader>
             <IonContent fullscreen>
-                <IonHeader collapse="condense">
-                </IonHeader>
                 <Container>
                     <Button color='warning' onClick={getLocalData}>Import/Export Local Storage</Button>
                     <Button color='danger' onClick={resetClick}>Reset Data</Button>
@@ -82,3 +85,5 @@ export const Settings = () => {
         </StyledIonPage>
     )
 }
+
+export default Settings;
