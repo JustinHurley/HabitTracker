@@ -1,6 +1,3 @@
-import Add from './pages/Add';
-import Settings from './pages/Settings';
-import Stats from './pages/Stats';
 import { GlobalProvider } from './components/State/State';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, setupIonicReact } from '@ionic/react';
@@ -26,45 +23,53 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import { Suspense, lazy } from 'react';
+import Loading from './pages/Loading';
 
 
 setupIonicReact();
+
+const Add = lazy(() => import('./pages/Add'));
+const Stats = lazy(() => import('./pages/Stats'));
+const Settings = lazy(() => import('./pages/Settings'));
 
 const App: React.FC = () => {
   return (
     <IonApp>
       <GlobalProvider>
         <IonReactRouter>
-          <IonTabs>
-            <IonRouterOutlet>
-              <Route exact path='/add'>
-                <Add />
-              </Route>
-              <Route exact path='/settings'>
-                <Settings />
-              </Route>
-              <Route exact path='/stats'>
-                <Stats/>
-              </Route>
-              <Route exact path='/'>
-                <Redirect to="/add" />
-              </Route>
-            </IonRouterOutlet>
-            <IonTabBar slot='bottom'>
-              <IonTabButton tab='stats' href='/stats'>
-                <IonIcon icon={statsChartSharp}/>
-                <IonLabel>Stats</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab='add' href='/add'>
-                <IonIcon icon={addCircleSharp}/>
-                <IonLabel>Add</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab='settings' href='/settings'>
-                <IonIcon icon={settingsSharp}/>
-                <IonLabel>Settings</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
-          </IonTabs>
+          <Suspense fallback={<Loading/>}>
+            <IonTabs>
+              <IonRouterOutlet>
+                <Route exact path='/add'>
+                  <Add />
+                </Route>
+                <Route exact path='/settings'>
+                  <Settings />
+                </Route>
+                <Route exact path='/stats'>
+                  <Stats/>
+                </Route>
+                <Route exact path='/'>
+                  <Redirect to="/add" />
+                </Route>
+              </IonRouterOutlet>
+              <IonTabBar slot='bottom'>
+                <IonTabButton tab='stats' href='/stats'>
+                  <IonIcon icon={statsChartSharp}/>
+                  <IonLabel>Stats</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab='add' href='/add'>
+                  <IonIcon icon={addCircleSharp}/>
+                  <IonLabel>Add</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab='settings' href='/settings'>
+                  <IonIcon icon={settingsSharp}/>
+                  <IonLabel>Settings</IonLabel>
+                </IonTabButton>
+              </IonTabBar>
+            </IonTabs>
+          </Suspense>
         </IonReactRouter>
       </GlobalProvider>
     </IonApp>
