@@ -1,6 +1,7 @@
 import { IonLabel } from "@ionic/react"
 import { styled } from "styled-components"
 import { primaryColor } from "../../util"
+import { RowContainer } from "../styledComponents";
 
 const buildDifference = (curr: number, past: number) => {
     const diff = curr - past;
@@ -62,7 +63,7 @@ const Label = styled(IonLabel)`
 const Num = styled(IonLabel)`
    font-size: 30px;
    white-space: nowrap;
-   margin-top: 5px;
+   margin: 1dvh;
 `
 
 const BigNum = styled(IonLabel)`
@@ -74,7 +75,6 @@ const BigNum = styled(IonLabel)`
 const Detail = styled(IonLabel)`
     font-size: 14px;
     white-space: nowrap;
-    margin: 1dvh 0.5dvh;
 `
 
 const Box = styled.div`
@@ -83,13 +83,6 @@ const Box = styled.div`
     align-items: center;
     background-color: ${primaryColor};
     border-radius: 1dvh;
-    width: 40dvw;
+    width: 45dvw;
     padding: 1dvh;
-    justify-content: space-between;
-`
-
-const RowContainer = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: row;
 `

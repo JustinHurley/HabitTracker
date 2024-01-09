@@ -5,6 +5,12 @@ export const stringsToDates = (strings: string[]): Date[] => {
     return strings.map((s) => new Date(s))
 }
 
+export const sumAllDates = (dates: {string: number}): number => {
+    return Object.values(dates).reduce((sum: number, num: number) => {
+        return sum + num
+    }, 0)
+}
+
 export const countByDate = (timestamps?: string[]) => {
     return timestamps ? timestamps.reduce((acc: any, timestamp: string) => {
         const date = timestamp.split('T')[0]
@@ -13,7 +19,7 @@ export const countByDate = (timestamps?: string[]) => {
     }, {}) : {}
 }
 
-export const countByDateInRange = (start: Date, end: Date, timestamps?: Date[], timezone=DEFAULT_TIMEZONE) => {
+export const countByDateInRange = (start: Date, end: Date, timestamps?: Date[], timezone=DEFAULT_TIMEZONE): {string : number} => {
     return timestamps ? timestamps.reduce((acc: any, date: Date) => {
         const currDate = new Date(moment(date).tz(timezone).format().split('T')[0])
         if (currDate >= start && currDate <= end) {
@@ -196,9 +202,15 @@ export const daysToLast = (times: Date[]): string => {
     }
 }
 
+export const getEarliest = (dates: Date[]): Date => {
+    return dates.reduce((prev, date) => {
+        return prev < date ? prev : date
+    }, getNow())
+}
+
 export const getDayConfig = (dates: {}) => {
     return {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: Object.keys(dates),
             datasets: [{

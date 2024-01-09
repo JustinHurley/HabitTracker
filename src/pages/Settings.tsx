@@ -1,8 +1,8 @@
 import moment from 'moment';
 import { useState, useContext } from 'react';
-import { Container, Button, LocalStorageContainer, StyledIonPage } from '../components'
+import { Container, Button, LocalStorageContainer, StyledIonPage, StyledIonContent } from '../components'
 import { dummyData, DEFAULT_TIMEZONE } from '../util';
-import { IonContent, IonHeader, IonToolbar } from '@ionic/react';
+import { IonHeader, IonToolbar } from '@ionic/react';
 import { GlobalContext, GlobalState } from '../components/State/State';
 
 const Settings = () => {
@@ -54,7 +54,7 @@ const Settings = () => {
           
                 </IonToolbar>
             </IonHeader>
-            <IonContent fullscreen>
+            <StyledIonContent>
                 <Container>
                     <Button color='warning' onClick={getLocalData}>Import/Export Local Storage</Button>
                     <Button color='danger' onClick={resetClick}>Reset Data</Button>
@@ -81,7 +81,7 @@ const Settings = () => {
                         </>
                     }
                 </Container>
-            </IonContent>
+            </StyledIonContent>
         </StyledIonPage>
     )
 }

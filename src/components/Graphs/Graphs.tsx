@@ -1,6 +1,6 @@
 import { Chart, Legend, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js/auto'
 import { Bar, Line } from 'react-chartjs-2';
-import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, getAmPmTime, daysToLast, getDailyBarGraphConfig, getMostRecent, getNow, stringsToDates } from '../../util';
+import { convertDatesToTimezone, countByDateInRange, countByHour, dayOptions, getDayConfig, countPastNDays, nDaysBeforeToday, primaryColor, calculatePastNDayAverage, getAmPmTime, daysToLast, getDailyBarGraphConfig, getMostRecent, getNow, stringsToDates, getEarliest, sumAllDates } from '../../util';
 import { IonSelect, IonSelectOption}  from '@ionic/react';
 import styled from 'styled-components';
 import { useContext } from 'react';
@@ -42,12 +42,14 @@ export const Graphs = ({props}: GraphsProps) => {
     const handleSelectedDay = (event: any) => {
         setGlobalState(updateNumDays(event.detail.value, globalState))
     }
- 
+
+    const overallTotal: number = sumAllDates(countByDateInRange(getEarliest(times), getMostRecent(times) ?? getNow()))
+
     return (
-        <GraphsContainer className='graphs-container'>
+        <GraphsContainer>
             <SectionTitle>TODAY</SectionTitle>
             {dayTotal > 0 ? 
-                <>
+                <div>
                     <RowContainer>
                         <NumberBox text={'Total for Today'} val={dayTotal}/>
                         <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast(times)}/>
@@ -55,9 +57,9 @@ export const Graphs = ({props}: GraphsProps) => {
                     <GraphFrame>
                         <StyledBar options={hourConfig.options} data={hourConfig.data} />
                     </GraphFrame>
-                </> : 
+                </div> : 
                 <RowContainer>
-                    <Label style={{fontSize: '30px'}}>😴 None for Today 😴</Label>
+                    <Label style={{fontSize: '25px'}}>😴 None for Today 😴</Label>
                 </RowContainer>
             }
             <SectionTitle>TRENDS</SectionTitle>
@@ -66,7 +68,7 @@ export const Graphs = ({props}: GraphsProps) => {
                 <NumberBox text={`${numDays}-Day Average`} val={nDayAverage} other={pastNDayAverage} useDifference={true}/>
             </RowContainer>
             <GraphFrame>
-                <StyledLine options={lastNDaysConfig.options} data={lastNDaysConfig.data} />
+                <StyledBar options={lastNDaysConfig.options} data={lastNDaysConfig.data} />
             </GraphFrame>
             <RangeBox>
             <Label style={{fontSize: '12px'}}>Select Day Range</Label>
@@ -78,17 +80,16 @@ export const Graphs = ({props}: GraphsProps) => {
                     })}
                 </IonSelectStyled>
             </RangeBox>
+            <SectionTitle>TOTAL</SectionTitle>
+            <RowContainer>
+                <NumberBox text={`Overall Total`} val={overallTotal} useDifference={true}/>
+                <NumberBox text={`Overall Average`} val={nDayAverage} other={pastNDayAverage} useDifference={true}/>
+            </RowContainer>
         </GraphsContainer>
     );
 }
 
 const StyledBar = styled(Bar)`
-    margin: 1dvh;
-    background-color: white;
-    border-radius: 1dvh;
-`
-
-const StyledLine = styled(Line)`
     margin: 1dvh;
     background-color: white;
     border-radius: 1dvh;

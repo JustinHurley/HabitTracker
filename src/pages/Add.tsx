@@ -1,10 +1,10 @@
-import { IonContent, IonHeader, IonToolbar } from '@ionic/react';
-import { BigButton, Container, GraphsContainer, RowContainer, StyledIonPage } from '../components';
+import { IonHeader, IonToolbar } from '@ionic/react';
+import { BigButton, Container, GraphsContainer, RowContainer, StyledIonContent, StyledIonPage } from '../components';
 import moment from 'moment';
 import { useContext } from 'react';
 import { GlobalContext, addTimestamp, removeLastTimestamp } from '../components/State/State';
 import { convertDatesToTimezone, countPastNDays, daysToLast, getAmPmTime, getMostRecent, getNow, getNowUTC, stringsToDates } from '../util';
-import { CartModal } from '../components/CartModal/CartModal';
+import CartModal from '../components/CartModal/CartModal';
 import { NumberBox } from '../components/Stats/NumberBox';
 
 const Add: React.FC = () => {
@@ -35,19 +35,19 @@ const Add: React.FC = () => {
           
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <StyledIonContent>
           <Container>
               <BigButton color='primary' onClick={hitClick}>🍃 Toke Counter 🍃</BigButton>
               <BigButton color='warning' onClick={undoClick}>⏪️ Undo Last ⏪️</BigButton>
               <CartModal /> 
-              <GraphsContainer className='graphs-container'>
+              <GraphsContainer>
                 <RowContainer>
                   <NumberBox text={'Total for Today'} val={dayTotal}/>
                   <NumberBox text={'Last Toke Time'} val={mostRecentTime} other={daysToLast(dates)}/>
                 </RowContainer>
               </GraphsContainer>
           </Container>
-      </IonContent>
+      </StyledIonContent>
     </StyledIonPage>
   );
 };

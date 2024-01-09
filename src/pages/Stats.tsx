@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import { Container, Graphs, StyledIonPage } from "../components"
+import { Container, Graphs, StyledIonContent, StyledIonPage } from "../components"
 import { GlobalContext } from "../components/State/State";
-import { IonContent, IonHeader, IonToolbar } from "@ionic/react";
+import { IonHeader, IonToolbar } from "@ionic/react";
 
 const Stats = () => {
     const { globalState, loading } = useContext(GlobalContext);
@@ -16,11 +16,11 @@ const Stats = () => {
           
                 </IonToolbar>
             </IonHeader>
-            <IonContent>
+            <StyledIonContent>
                 <Container>
                     <Graphs props={globalState}/>
                 </Container>
-            </IonContent>
+            </StyledIonContent>
         </StyledIonPage>
     )
 }
